@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd3478275af9460ca65fbb3c8d6101a3, type: 3}
+  m_Name: Pieces
+  m_EditorClassIdentifier: Assembly-CSharp:DatabasesInternal:PieceDatabase
+  pieces:
+  - type: 0
+    prefab: {fileID: 2931828219393233677, guid: 62cafffed680c3c43bda7194604dd2cf, type: 3}
+  - type: 1
+    prefab: {fileID: 4918550085223210166, guid: 0da64c65b6a37dd49b594259867d8541, type: 3}
+  - type: 2
+    prefab: {fileID: 4900647507147199604, guid: 41c2ecab8a217d0429aaf24b8b143fe5, type: 3}
+  - type: 3
+    prefab: {fileID: 6682337324082692642, guid: b1d1c4cb06c190d48ba88fd4ef549139, type: 3}
+  - type: 4
+    prefab: {fileID: 7676867826860357252, guid: 09e1be1d4260d2940995a00f7b7a8617, type: 3}
+  - type: 5
+    prefab: {fileID: 2018456433626493321, guid: 28406a2a0e5c84547b078bcb695c8802, type: 3}
