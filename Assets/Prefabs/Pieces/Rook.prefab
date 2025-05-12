@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6682337324082692646}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Rook
-  m_TagString: Untagged
+  m_TagString: Pieces
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -87,6 +87,18 @@ PrefabInstance:
       propertyPath: m_Name
       value: Rook
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f6dc853dc2610b74498bc2b0066a2559, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: f6dc853dc2610b74498bc2b0066a2559, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: f6dc853dc2610b74498bc2b0066a2559, type: 3}
+      propertyPath: m_TagString
+      value: Pieces
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6dc853dc2610b74498bc2b0066a2559, type: 3}
 --- !u!1 &4344288420737903180 stripped
@@ -122,7 +134,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPosition: {x: 0, y: 0}
   owner: 0
-  pieceType: 0
+  pieceType: 3
 --- !u!4 &5371694851957966895 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: f6dc853dc2610b74498bc2b0066a2559, type: 3}

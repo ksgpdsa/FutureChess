@@ -1,15 +1,14 @@
-using System.Collections.Generic;
-using UnityEngine;
-
 namespace Pieces
 {
     public class King : Piece
     {
-        public override List<Vector2Int> GetValidMoves()
+        protected override void ManageMovementsByType()
         {
-            // var currentHouse = BoardManager.Instance.GetHouse(currentPosition.x, currentPosition.y);
-
-            return GetMovesFromOffset(1, 1, 1, 1, 1);
+            MaxRingForward = 1;
+            MaxRingBackward = 1;
+            MaxLineForward = 1;
+            MaxLineBackward = 1;
+            MaxDiagonalSteps = 1;
         }
     }
 }

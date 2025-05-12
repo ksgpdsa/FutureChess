@@ -41,10 +41,12 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\UI\ManageHoverImageSwitch.cs" />
     <Compile Include="Assets\Scripts\Pieces\Pawn.cs" />
     <Compile Include="Assets\Scripts\Board.cs" />
     <Compile Include="Assets\Scripts\Pieces\Knight.cs" />
     <Compile Include="Assets\Scripts\Pieces\Bishop.cs" />
+    <Compile Include="Assets\Scripts\Extensions\GameObjectExtensions.cs" />
     <Compile Include="Assets\Scripts\Enums\PieceTypeEnum.cs" />
     <Compile Include="Assets\Scripts\DatabasesInternal\PieceDatabase.cs" />
     <Compile Include="Assets\Scripts\Enums\GameStateEnum.cs" />
@@ -59,8 +61,10 @@
     <Compile Include="Assets\Scripts\HouseData.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\RingData.cs" />
+    <Compile Include="Assets\Scripts\UI\HudManager.cs" />
     <Compile Include="Assets\Scripts\Pieces\Rook.cs" />
     <Compile Include="Assets\Scripts\BoardManager.cs" />
+    <Compile Include="Assets\Scripts\Enums\DirectionsEnum.cs" />
     <None Include="Library\PackageCache\com.unity.collab-proxy@2.5.2\Lib\Editor\PlasticSCM\Localization\differences.ja.txt" />
     <None Include="Library\PackageCache\com.unity.settings-manager@1.0.3\package.json" />
     <None Include="Library\PackageCache\com.unity.modules.subsystems@1.0.0\package.json" />

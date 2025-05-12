@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2931828219393233713}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: King
-  m_TagString: Untagged
+  m_TagString: Pieces
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -86,6 +86,18 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 299a633906661aa4fa390e0d67e8a737, type: 3}
       propertyPath: m_Name
       value: King
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 299a633906661aa4fa390e0d67e8a737, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 299a633906661aa4fa390e0d67e8a737, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 299a633906661aa4fa390e0d67e8a737, type: 3}
+      propertyPath: m_TagString
+      value: Pieces
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 299a633906661aa4fa390e0d67e8a737, type: 3}

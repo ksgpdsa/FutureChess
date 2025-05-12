@@ -1,55 +1,30 @@
-using System.Collections.Generic;using Enums;
-using UnityEngine;
-
 namespace Pieces
 {
     public class Bishop : Piece
     {
-        public override List<Vector2Int> GetValidMoves()
+        protected override void ManageMovementsByType()
         {
-            var validMoves = new List<Vector2Int>();
-            var myArea = BoardManager.Instance.GetAreaType(currentPosition);
+            MaxDiagonalSteps = 99;
+        }
 
-            // Diagonais: anel +1 e casa +1, anel +1 e casa -1, anel -1 e casa +1, anel -1 e casa -1
-            var directions = new Vector2Int[]
+        protected override bool ManageRingMovement(HouseData targetHouse, int steps, ref bool crossedOwnerBoundary)
+        {
+            return false; // não move em linha reta
+        }
+
+        protected override bool ManageLineMovement(HouseData targetHouse, int steps, ref bool crossedOwnerBoundary)
+        {
+            return false; // não move em linha reta
+        }
+
+        protected override bool ManageDiagonalMovement(HouseData targetHouse, int steps, ref bool crossedOwnerBoundary)
+        {
+            if (HasCrossedTooFarIntoAnotherOwner(targetHouse, ref crossedOwnerBoundary))
             {
-                new(1, 1),   // subir anel e próxima casa
-                new(1, -1),  // subir anel e casa anterior
-                new(-1, 1),  // descer anel e próxima casa
-                new(-1, -1)  // descer anel e casa anterior
-            };
-
-            foreach (var dir in directions)
-            {
-                while (true)
-                {
-                    currentPosition += dir;
-
-                    if (!BoardManager.Instance.IsPositionInsideBoard(currentPosition)) break;
-
-                    var targetArea = BoardManager.Instance.GetAreaType(currentPosition);
-
-                    // Dentro da sua área: anda livre na diagonal
-                    // TODO: mudar para área do jogador
-                    if (myArea == AreaTypeEnum.Player1 && targetArea == AreaTypeEnum.Player1)
-                    {
-                        // Parar se encontrar qualquer peça
-                    }
-                    else
-                    {
-                        // Fora da sua área: só pode trocar de anel 1x por movimento
-                        if (Mathf.Abs(currentPosition.x - currentPosition.x) > 1) break;
-                    }
-
-                    if (!BoardManager.Instance.IsValidMove(this, currentPosition)) break;
-                    
-                    validMoves.Add(currentPosition);
-                    
-                    if (BoardManager.Instance.GetPieceAt(currentPosition) != null) break;
-                }
+                return steps == 1; // fora da área: 1 anel por vez
             }
-
-            return validMoves;
+            
+            return true;
         }
     }
 }

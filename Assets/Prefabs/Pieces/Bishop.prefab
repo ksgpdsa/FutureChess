@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4900647507147199608}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Bishop
-  m_TagString: Untagged
+  m_TagString: Pieces
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -83,9 +83,29 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7635826562936255635, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
+      propertyPath: m_MotionVectors
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
       propertyPath: m_Name
       value: Bishop
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
+      propertyPath: m_TagString
+      value: Untagged
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8164078558771037576, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
+      propertyPath: m_TagString
+      value: Pieces
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}
@@ -122,7 +142,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentPosition: {x: 0, y: 0}
   owner: 0
-  pieceType: 0
+  pieceType: 2
 --- !u!4 &6705027449066228002 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 738308ff0653a7445aee1c84996f30a9, type: 3}

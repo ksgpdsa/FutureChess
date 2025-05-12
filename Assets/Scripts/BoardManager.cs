@@ -1,4 +1,6 @@
-using System.Collections.Generic;using System.Linq;using Enums;
+using System.Collections.Generic;
+using System.Linq;
+using Enums;
 using JetBrains.Annotations;
 using Pieces;
 using TMPro;
@@ -7,11 +9,16 @@ using UnityEngine;
 public class BoardManager : MonoBehaviour
 {
     public static BoardManager Instance;
+    
+    private static readonly int IsSelected = Shader.PropertyToID("_isSelected");
     private static readonly int MainColor = Shader.PropertyToID("_MainColor");
+    private static readonly int HighlightColor = Shader.PropertyToID("_HighlightColor");
 
-    private List<HouseData> _houses = new();
-    private List<GameObject> _pieces = new();
-    private List<RingData> _rings = new();
+    private readonly List<HouseData> _houses = new();
+    private readonly List<GameObject> _pieces = new();
+    private readonly List<RingData> _rings = new();
+    private readonly List<Vector2Int> _highlightedPositions = new();
+    
     private GameObject _currentFocusedPiece;
 
     [Header("Prefabs")]
@@ -51,19 +58,6 @@ public class BoardManager : MonoBehaviour
         }
     }
 
-    public bool IsValidMove(Piece piece, Vector2Int targetPos)
-    {
-        var house = _houses.FirstOrDefault(x => x.ring == targetPos.y && x.line == targetPos.x);
-    
-        if (!house)
-        {
-            return false;
-        }
-
-        // Regra básica: não pode mover para casa ocupada por peça sua
-        return !house.occupant || house.occupant.owner != piece.owner;
-    }
-
     public Vector3 GetWorldPosition(Vector2Int gridPos, float height = 0)
     {
         var house = _houses.First(x => x.ring == gridPos.y && x.line == gridPos.x);
@@ -73,13 +67,14 @@ public class BoardManager : MonoBehaviour
         return worldPos;
     }
 
-    public void OccupyHouse(Vector2Int pos, Piece piece)
+    private void OccupyHouse(Vector2Int pos, Piece piece)
     {
         var house = _houses.FirstOrDefault(x => x.ring == pos.y && x.line == pos.x);
     
-        if (house != null)
+        if (house)
         {
             house.occupant = piece;
+            piece.currentHouse = house;
         }
     }
 
@@ -87,47 +82,10 @@ public class BoardManager : MonoBehaviour
     {
         var house = _houses.FirstOrDefault(x => x.ring == pos.y && x.line == pos.x);
     
-        if (house != null)
+        if (house)
         {
             house.occupant = null;
         }
-    }
-
-    public AreaTypeEnum GetAreaType(Vector2Int currentPos)
-    {
-        var house = _houses.FirstOrDefault(x => x.ring == currentPos.y && x.line == currentPos.x);
-        
-        if (!house)
-        {
-            Debug.LogError("line: " + currentPos.x + " ring: " + (currentPos.y));
-            Debug.LogError("No house found: ");
-
-            foreach (var houseData in _houses)
-            {
-                Debug.LogError("line: " + houseData.line + " ring: " + houseData.ring);
-            }
-            
-            return AreaTypeEnum.Neutral;
-        }
-        
-        return house.owner;
-    }
-
-    public bool IsPositionInsideBoard(Vector2Int target)
-    {
-        var ring = target.x;
-        var houseIndex = target.y;
-
-        if (ring < 0 || ring >= _rings.Count) return false;
-
-        var housesInThisRing = _rings.First(x => x.ringNumber == ring).houseQuantity;
-
-        return houseIndex >= 0 && houseIndex < housesInThisRing;
-    }
-
-    public Piece GetPieceAt(Vector2Int target)
-    {
-        return _houses.FirstOrDefault(x => x.ring == target.y && x.line == target.x)!.occupant;
     }
 
     public List<HouseData> GetHouses(PlayerEnum? owner = null)
@@ -137,17 +95,17 @@ public class BoardManager : MonoBehaviour
 
     public RingData GetRing(int ringNumber)
     {
-        return _rings.First(x => x.ringNumber == ringNumber);
-    }
-
-    public List<RingData> GetRings()
-    {
-        return _rings;
+        return _rings.FirstOrDefault(x => x.ringNumber == ringNumber);
     }
 
     public void AddRing(RingData ringData)
     {
         _rings.Add(ringData);
+    }
+
+    public void AddHighLightedPosition(Vector2Int pos)
+    {
+        _highlightedPositions.Add(pos);
     }
     
     public void AddHouse(int line, int ring, AreaTypeEnum area, Vector3 position, bool isCentral)
@@ -166,7 +124,7 @@ public class BoardManager : MonoBehaviour
         
         if (isCentral)
         {
-            house.transform.localScale *= (houseSize * 1.5f); // 1.5x maior
+            house.transform.localScale *= houseSize * 1.5f; // 1.5x maior
             house.name = "House_Center";
         }
         else
@@ -175,7 +133,7 @@ public class BoardManager : MonoBehaviour
             house.name = $"House_Ring{ring}_Line{line}";
         }
             
-        var rendererComponent = house.GetComponent<Renderer>();
+        var rendererComponent = house.GetComponentInChildren<Renderer>();
             
         if (rendererComponent)
         {
@@ -197,9 +155,10 @@ public class BoardManager : MonoBehaviour
             }
             
             rendererComponent.material.SetColor(MainColor, materialColor);
+            rendererComponent.material.SetColor(HighlightColor, Color.magenta);
         }
     }
-    
+
     public void AddPiece(GameObject prefab, Vector2Int position, PlayerEnum owner, PieceTypeEnum pieceType)
     {
         var instantiateGameObject = Instantiate(prefab, GetWorldPosition(position, 0.7f), Quaternion.identity, pieces.transform);
@@ -211,6 +170,21 @@ public class BoardManager : MonoBehaviour
             piece.currentPosition = position;
             piece.owner = owner;
             piece.pieceType = pieceType;
+
+            var rendererComponent = piece.GetComponent<Renderer>();
+
+            if (rendererComponent)
+            {
+                var materialColor = piece.owner switch
+                {
+                    PlayerEnum.Player1 => (Color)new Color32(83, 83, 236, 255),
+                    PlayerEnum.Player2 => (Color)new Color32(236, 83, 83, 255),
+                    _ => rendererComponent.material.color
+                };
+            
+                rendererComponent.material.SetColor(MainColor, materialColor);
+                rendererComponent.material.SetColor(HighlightColor, Color.magenta);
+            }
         }
  
         _pieces.Add(instantiateGameObject);
@@ -228,9 +202,12 @@ public class BoardManager : MonoBehaviour
         });
     }
     
-    public GameObject GetNextPiece(PlayerEnum owner, PieceTypeEnum? pieceType = null)
+    public GameObject GetNextPiece()
     {
-        if (!FilterPiece(owner, pieceType, out var filteredPieces, out var currentIndex)) return null;
+        if (!FilterPiece(null, out var filteredPieces, out var currentIndex))
+        {
+            return null;
+        }
 
         // Próximo índice, com wrap
         var nextIndex = (currentIndex + 1) % filteredPieces.Count;
@@ -240,9 +217,12 @@ public class BoardManager : MonoBehaviour
         return _currentFocusedPiece;
     }
     
-    public GameObject GetPreviousPiece(PlayerEnum owner, PieceTypeEnum? pieceType = null)
+    public GameObject GetPreviousPiece()
     {
-        if (!FilterPiece(owner, pieceType, out var filteredPieces, out var currentIndex)) return null;
+        if (!FilterPiece(null, out var filteredPieces, out var currentIndex))
+        {
+            return null;
+        }
 
         // Próximo índice, com wrap
         var nextIndex = (currentIndex - 1) % filteredPieces.Count;
@@ -254,7 +234,7 @@ public class BoardManager : MonoBehaviour
         return _currentFocusedPiece;
     }
 
-    private bool FilterPiece(PlayerEnum owner, PieceTypeEnum? pieceType, out List<GameObject> filteredPieces, out int currentIndex)
+    private bool FilterPiece(PieceTypeEnum? pieceType, out List<GameObject> filteredPieces, out int currentIndex)
     {
         currentIndex = 0;
         
@@ -262,7 +242,7 @@ public class BoardManager : MonoBehaviour
         filteredPieces = _pieces.Where(x =>
         {
             var piece = x.GetComponentInChildren<Piece>();
-            return piece.owner == owner && (pieceType == null || piece.pieceType == pieceType);
+            return pieceType == null || piece.pieceType == pieceType;
         }).ToList();
 
         if (filteredPieces.Count == 0)
@@ -289,11 +269,56 @@ public class BoardManager : MonoBehaviour
 
     public HouseData GetHouse(int line, int ring)
     {
-        return _houses.First(house => house.ring == ring && house.line == line);
+        return _houses.FirstOrDefault(house => house.ring == ring && house.line == line);
     }
 
-    public int GetHousesCount(int? ring)
+    public void OnHouseClicked(HouseData houseData)
     {
-        return !ring.HasValue ? _houses.Count : _houses.Count(house => house.ring == ring.Value);
+        if (houseData.occupant)
+        {
+            houseData.occupant.HasCaptured();
+        }
+        
+        var piece = _currentFocusedPiece.GetComponent<Piece>();
+        piece.Move(new Vector2Int(houseData.line, houseData.ring));
+        
+        GameManager.Instance.EndTurn();
+    }
+    
+    public void ClearHighlights(Piece selectedPiece)
+    {
+        if (_currentFocusedPiece)
+        {
+            var currentFocusRenderer = _currentFocusedPiece.GetComponentInChildren<Renderer>();
+            currentFocusRenderer.material.SetFloat(IsSelected, 0);
+        }
+        
+        if (selectedPiece)
+        {
+            var pieceRenderer = selectedPiece.gameObject.GetComponentInChildren<Renderer>();
+        
+            if (pieceRenderer)
+            {
+                pieceRenderer.material.SetFloat(IsSelected, 0);
+            }
+        }
+            
+        foreach (var pos in _highlightedPositions)
+        {
+            var houseObj = GetHouse(pos.x, pos.y);
+                
+            if (houseObj)
+            {
+                var houseRenderer = houseObj.GetComponentInChildren<Renderer>();
+                    
+                if (houseRenderer)
+                {
+                    houseRenderer.material.SetFloat(IsSelected, 0);
+                }
+
+            }
+        }
+
+        _highlightedPositions.Clear();
     }
 }

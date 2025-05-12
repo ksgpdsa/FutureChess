@@ -1,4 +1,12 @@
-using System.Collections.Generic;using DatabasesInternal;using DefaultNamespace;using Enums;using Pieces;using UnityEngine;
+using System;
+using System.Collections.Generic;
+using DatabasesInternal;
+using DefaultNamespace;
+using Enums;
+using Pieces;
+using TMPro;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +19,12 @@ public class GameManager : MonoBehaviour
     [Header("Spawn Settings")]
     [SerializeField] public bool automaticSpawn = true;
     [SerializeField] public PieceDatabase pieceDatabase;
+    
+    [Header("Prefabs")]
+    [SerializeField] private TextMeshProUGUI playerNameText;
+    
+    private PieceManager _player1Pieces;
+    private PieceManager _player2Pieces;
 
     private void Awake()
     {
@@ -31,13 +45,50 @@ public class GameManager : MonoBehaviour
         if (automaticSpawn)
         {
             // var player1Pieces = new PieceManager(1,1,5, 20, 5, 10);
-            var player1Pieces = new PieceManager(1,0,0, 0, 0, 0);
+            _player1Pieces = new PieceManager(1,1,1, 1, 1, 1);
             
-            var player2Pieces = new PieceManager(1,0,0, 0, 0, 0);
+            _player2Pieces = new PieceManager(1,1,1, 1, 1, 1);
             // var player2Pieces = new PieceManager(1,1,5, 20, 5, 10);
             
-            SpawnPiecesForPlayer(PlayerEnum.Player1, player1Pieces);
-            SpawnPiecesForPlayer(PlayerEnum.Player2, player2Pieces);
+            SpawnPiecesForPlayer(PlayerEnum.Player1, _player1Pieces);
+            SpawnPiecesForPlayer(PlayerEnum.Player2, _player2Pieces);
+        }
+    }
+
+    public void CapturePiece(PlayerEnum ownerOfCaptured, PieceTypeEnum pieceType)
+    {
+        var manager = ownerOfCaptured switch
+        {
+            PlayerEnum.Player1 => _player1Pieces,
+            PlayerEnum.Player2 => _player2Pieces,
+            _ => throw new ArgumentOutOfRangeException(nameof(ownerOfCaptured), ownerOfCaptured, null)
+        };
+
+        switch (pieceType)
+        {
+            case PieceTypeEnum.King:
+                manager.SetKingCount(manager.KingCount - 1);
+                break;
+            case PieceTypeEnum.Queen:
+                manager.SetQueenCount(manager.QueenCount - 1);
+                break;
+            case PieceTypeEnum.Bishop:
+                manager.SetBishopCount(manager.BishopCount - 1);
+                break;
+            case PieceTypeEnum.Rook:
+                manager.SetRookCount(manager.RookCount - 1);
+                break;
+            case PieceTypeEnum.Knight:
+                manager.SetKnightCount(manager.KnightCount - 1);
+                break;
+            case PieceTypeEnum.Pawn:
+                manager.SetPawnCount(manager.PawnCount - 1);
+                break;
+        }
+
+        if (manager.KingCount == 0)
+        {
+            EndGame(ownerOfCaptured == PlayerEnum.Player1 ? PlayerEnum.Player2 : PlayerEnum.Player1);
         }
     }
 
@@ -47,7 +98,7 @@ public class GameManager : MonoBehaviour
 
         var piecesToSpawn = GetPiecesToSpawn(pieceManager);
 
-        // Shuffle(availablePositions);
+        Shuffle(availablePositions);
 
         var i = 0;
         
@@ -70,40 +121,46 @@ public class GameManager : MonoBehaviour
     private List<Piece> GetPiecesToSpawn(PieceManager pieceManager)
     {
         var piecesToSpawn = new List<Piece>();
+        var kingsToSpawn = pieceManager.KingCount;
+        var queuesToSpawn = pieceManager.QueenCount;
+        var rooksToSpawn = pieceManager.RookCount;
+        var knightsToSpawn = pieceManager.KnightCount;
+        var pawnsToSpawn = pieceManager.PawnCount;
+        var bishopsToSpawn = pieceManager.BishopCount;
         
         for (var i = 0; i < pieceManager.Count; i++)
         {
             var pieceType = PieceTypeEnum.King;
             
-            if (pieceManager.KingCount > 0)
+            if (kingsToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.King;
-                pieceManager.KingCount--;
+                kingsToSpawn--;
             }
-            else if (pieceManager.QueenCount > 0)
+            else if (queuesToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.Queen;
-                pieceManager.QueenCount--;
+                queuesToSpawn--;
             }
-            else if (pieceManager.RookCount > 0)
+            else if (rooksToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.Rook;
-                pieceManager.RookCount--;
+                rooksToSpawn--;
             }
-            else if (pieceManager.BishopCount > 0)
+            else if (bishopsToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.Bishop;
-                pieceManager.BishopCount--;
+                bishopsToSpawn--;
             }
-            else if (pieceManager.KnightCount > 0)
+            else if (knightsToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.Knight;
-                pieceManager.KnightCount--;
+                knightsToSpawn--;
             }
-            else if (pieceManager.PawnCount > 0)
+            else if (pawnsToSpawn > 0)
             {
                 pieceType = PieceTypeEnum.Pawn;
-                pieceManager.PawnCount--;
+                pawnsToSpawn--;
             }
             
             var prefab = pieceDatabase.GetPrefab(pieceType);
@@ -143,20 +200,37 @@ public class GameManager : MonoBehaviour
 
     public void EndTurn()
     {
-        if (gameStateEnum != GameStateEnum.Playing) return;
+        if (gameStateEnum != GameStateEnum.Playing)
+        {
+            return;
+        }
 
         currentPlayerEnum = currentPlayerEnum == PlayerEnum.Player1 ? PlayerEnum.Player2 : PlayerEnum.Player1;
-        Debug.Log("Turno de: " + currentPlayerEnum);
+        playerNameText.text = currentPlayerEnum.ToString();
+        playerNameText.color = currentPlayerEnum == PlayerEnum.Player1 ? new Color32(52, 195, 217, 255) : new Color32(217, 52, 64, 255);
+
+        switch (currentPlayerEnum)
+        {
+            case PlayerEnum.Player1:
+                CameraManager.Instance.ActivatePlayer1View();
+                break;
+            case PlayerEnum.Player2:
+                CameraManager.Instance.ActivatePlayer2View();
+                break;
+        }
     }
 
     public bool IsPlayerTurn(Piece piece)
     {
-        return (piece.owner == currentPlayerEnum);
+        return piece.owner == currentPlayerEnum;
     }
 
     public void PromotePawn(Pawn pawn, PieceTypeEnum pieceTypeEnum)
     {
-        if (gameStateEnum != GameStateEnum.Playing) return;
+        if (gameStateEnum != GameStateEnum.Playing)
+        {
+            return;
+        }
 
         Debug.Log("Peão promovido!");
 
@@ -167,7 +241,7 @@ public class GameManager : MonoBehaviour
         gameStateEnum = GameStateEnum.Playing;
     }
 
-    public void EndGame(PlayerEnum winner)
+    private void EndGame(PlayerEnum winner)
     {
         gameStateEnum = GameStateEnum.Ended;
         Debug.Log("Fim de jogo! Vencedor: " + winner);

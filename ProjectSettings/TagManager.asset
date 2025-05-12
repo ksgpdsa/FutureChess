@@ -3,15 +3,16 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Pieces
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Pieces
   - Water
   - UI
-  - 
+  - Houses
   - 
   - 
   - 
@@ -40,4 +41,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Hud
+    uniqueID: 3236629271
     locked: 0
